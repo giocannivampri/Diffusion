@@ -62,12 +62,12 @@ def D_calculatore(I, delta=0.00000001):
 
 
 #setting parameters
-scala=10000
-epsilon = 0.02
+scala=1000
+epsilon = 1.0
 r_1=3.59
 r_2=7.18
 radius=6.3245
-th_MAX=  0.3*10**-6 * 5
+th_MAX=  0.3*10**-6
 emittance_star=2.5e-6
 beta=280
 gamma=(7000/0.938272088)
@@ -78,7 +78,7 @@ omega_0x=0.31 * 2 * np.pi
 omega_1x= -1.73e5 * 2*np.pi * 2*emittance_star/(beta_rel*gamma)
 omega_2x= -1.87e12 * 2*np.pi * (2*emittance_star/(beta_rel*gamma))**2
 print(omega_0x, omega_1x, omega_2x)
-iterations=2000000
+iterations=10**6
 n_particle=10**8
 mean_x=0.0
 sigma_x=1.0
@@ -91,7 +91,9 @@ Min_I=6.125
 #creating initial distributions
 #u=np.random.normal(1.0, 0.2, n_particle)
 #th0=np.random.uniform(0.0, np.pi*2, n_particle)
+np.random.seed(4)
 x0=np.random.normal(mean_x, sigma_x, n_particle)
+np.random.seed(5)
 p0=np.random.normal(mean_p, sigma_p, n_particle)
 I0=(x0**2 + p0**2)*0.5
 p0=(p0)[I0>6.125]
@@ -152,7 +154,7 @@ for i in range(len(azione)):
 
 
 #initializing CN
-dt=0.4
+dt=0.3
 tempo_giro=0.0000909
 motore=cn.cn_generic(Min_I, Max_I, ro, dt, D_calculatore)
 times, current = motore.current(int(iterations/scala), 1)
@@ -169,9 +171,11 @@ y=mappa.get_filtered_action()
 x, p, t = mappa.get_filtered_data()
 print(len(x0))
 print(len(x))
+per=(len(x0)-len(x))/n_particle
+print(per)
 th0=get_th(x0, p0)
 th=get_th(x, p)
-tempi_mappa, corrente_mappa = mappa.current_binning(60000)
+tempi_mappa, corrente_mappa = mappa.current_binning(3000)
 #print(len(t))
 #g=get_th(x0, p0)
 
@@ -185,10 +189,7 @@ fig, dx=plt.subplots()
 fig, ex=plt.subplots()
 fig, sx=plt.subplots()
 
-#phase space
-sx.set_xlabel("x")
-sx.set_ylabel("P")
-sx.plot(x, p, "r.")
+
 
 #theta distributions
 ex.set_xlabel("Theta")
@@ -214,7 +215,7 @@ b=np.array([Io, Io, Io, Io])
 stati=np.array([0.0, 0.3, 0.7, 1.0])
 ax.set_xlabel("I")
 ax.set_ylabel("\u03C1")
-ax.hist(y, 110, None, True)
+ax.hist(y, 80, None, True)
 ax.plot(a, stat)
 #ax.plot(azione, ro)
 #ax.plot(b, stati)
@@ -223,5 +224,13 @@ ax.plot(a, stat)
 bx.set_xlabel("x")
 bx.hist(x0, 40, None, True)
 bx.hist(x, 80, None, True, None, False, None, 'step')
+
+
+#phase space
+xf=(x)[(x**2 + p**2)*0.5 > 8.0]
+pf=(p)[(x**2 + p**2)*0.5 > 8.0]
+sx.set_xlabel("x")
+sx.set_ylabel("P")
+sx.plot(xf, pf, "r.")
 
 plt.show()
