@@ -37,7 +37,7 @@ def symplectic_map_common(x, px, step_values, noise_array, epsilon, omega_0, ome
         l_step[i] = step_values[j]
         for k in range(noise_array.shape[0]):
             action[i] = (l_x[i] * l_x[i] + l_px[i] * l_px[i]) * 0.5
-            rot_angle[i] = omega_0 + (omega_1 + action[i]) + ( omega_2 * action[i] * action[i])
+            rot_angle[i] = omega_0 + (omega_1 + action[i]) + (0.5* omega_2 * action[i] * action[i])
 
             if (l_x[i] == 0.0 and px[i] == 0.0) or np.sqrt(action[i]*2) >= barrier_radius:
                 l_x[i] = 0.0
@@ -83,7 +83,7 @@ def symplectic_map_personal(x, px, step_values, n_iterations, epsilon, omega_0, 
         for k in range(n_iterations):
             action[i] = (l_x[i] * l_x[i] + l_px[i] * l_px[i]) * 0.5
             rot_angle[i] = omega_0 + (omega_1 + action[i]) + \
-                ( omega_2 * action[i] * action[i])
+                (0.5* omega_2 * action[i] * action[i])
 
             if (l_x[i] == 0.0 and l_px[i] == 0.0) or np.sqrt(action[i]*2) >= barrier_radius:
                 l_x[i] = 0.0
@@ -93,6 +93,7 @@ def symplectic_map_personal(x, px, step_values, n_iterations, epsilon, omega_0, 
             temp1[i] = l_x[i]
             temp2[i] = (
                 l_px[i] + (epsilon * noise[i] * TH_MAX * f(l_x[i], R_1, R_2) * R_2 * 914038.5712158077/ l_x[i] )
+            
             )
             l_x[i] = math.cos(rot_angle[i]) * temp1[i] + \
                 math.sin(rot_angle[i]) * temp2[i]

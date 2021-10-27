@@ -84,7 +84,7 @@ def iterate(x, px, noise, epsilon, omega_0, omega_1, omega_2, R_1, R_2, TH_MAX, 
         
         
         action = (x * x + px * px) * 0.5
-        rot_angle = omega_0 + (omega_1 * action) + ( omega_2 * action * action)
+        rot_angle = omega_0 + (omega_1 * action) + (0.5*  omega_2 * action * action)
         # rot_angle = np.random.rand() * np.pi * 2
         
         if (np.sqrt(action*2) >= barrier_radius):

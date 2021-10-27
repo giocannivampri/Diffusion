@@ -78,15 +78,16 @@ omega_0x=0.31 * 2 * np.pi
 omega_1x= -1.73e5 * 2*np.pi * 2*emittance_star/(beta_rel*gamma)
 omega_2x= -1.87e12 * 2*np.pi * (2*emittance_star/(beta_rel*gamma))**2
 print(omega_0x, omega_1x, omega_2x)
-iterations=10**6
-n_particle=10**8
+iterations=10**5 
+n_particle=10**9
 mean_x=0.0
 sigma_x=1.0
 mean_p=0.0
 sigma_p=1.0
 Max_I=radius**2 * 0.5
 n_step=3000
-Min_I=6.125
+Min_I=r_1**2 * 0.5
+#Min_I=6.125
 
 #creating initial distributions
 #u=np.random.normal(1.0, 0.2, n_particle)
@@ -96,8 +97,8 @@ x0=np.random.normal(mean_x, sigma_x, n_particle)
 np.random.seed(5)
 p0=np.random.normal(mean_p, sigma_p, n_particle)
 I0=(x0**2 + p0**2)*0.5
-p0=(p0)[I0>6.125]
-x0=(x0)[I0>6.125]
+p0=(p0)[I0>Min_I]
+x0=(x0)[I0>Min_I]
 #ro=cn.normed_normal_linspace(0.0, 4.5, 1.0, 0.2, 3000)
 #j=cn.action(x0, p0)
 #x0=cn.x_from_I_th(u, th0)
@@ -154,7 +155,7 @@ for i in range(len(azione)):
 
 
 #initializing CN
-dt=0.3
+dt=0.4
 tempo_giro=0.0000909
 motore=cn.cn_generic(Min_I, Max_I, ro, dt, D_calculatore)
 times, current = motore.current(int(iterations/scala), 1)
