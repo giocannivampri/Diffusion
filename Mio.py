@@ -1,5 +1,6 @@
 import numpy as np
 from numba import jit, njit, prange
+#np.random.seed(1)
 
 
 @njit
@@ -30,7 +31,7 @@ def make_correlated_noise(n_elements, gamma=0.0):
     ndarray
         the noise array
     """    
-    np.random.seed(1)
+    #np.random.seed(1)
     noise = np.random.normal(0.0, 1.0, n_elements)
     if gamma != 0.0:
         for i in range(1, n_elements):
@@ -88,6 +89,7 @@ def iterate(x, px, noise, epsilon, omega_0, omega_1, omega_2, R_1, R_2, TH_MAX, 
         # rot_angle = np.random.rand() * np.pi * 2
         
         if (np.sqrt(action*2) >= barrier_radius):
+        #if (abs(x)) >= barrier_radius:
             return 0.0, 0.0, i + start 
         
         temp1 = x

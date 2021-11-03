@@ -22,10 +22,10 @@ class symplectic_map(object):
     def reset(self):
         pass
 
-    def compute_common_noise(self):
+    def compute_comon_noise(self):
         pass
     
-    def compute_personal_noise(self):
+    def compute_personale_noise(self):
         pass
     
     def get_data(self):
@@ -142,7 +142,7 @@ class symplectic_map(object):
         return np.array(t_middle), np.array(currents)
 
     @staticmethod
-    def generate_instance(omega_0, omega_1, omega_2, epsilon, R_1, R_2, TH_MAX, barrier_radius, x_0, p_0, cuda_device=None):
+    def genera_istanza(omega_0, omega_1, omega_2, epsilon, R_1, R_2, TH_MAX, barrier_radius, x_0, p_0, cuda_device=None):
         if cuda_device == None:
             cuda_device = cuda.is_available()
         if cuda_device:
@@ -215,7 +215,7 @@ class symplectic_map_cpu(symplectic_map):
             self.x, self.p, self.times, noise_array, self.epsilon, self.omega_0, self.omega_1, self.omega_2, self.R_1, self.R_2, self.TH_MAX, self.barrier_radius
         )
 
-    def compute_personal_noise(self, n_iterations, gamma=0.0):
+    def compute_personale_noise(self, n_iterations, gamma=0.0):
         """Execute iterations with correlated noise with different realization for every single particle.
         
         Parameters
@@ -317,7 +317,7 @@ class symplectic_map_gpu(symplectic_map):
         self.d_p.copy_to_host(self.p)
         self.d_times.copy_to_host(self.times)
 
-    def compute_personal_noise(self, n_iterations, gamma=0.0):
+    def compute_personale_noise(self, n_iterations, gamma=0.0):
         """Execute iterations with correlated noise with different realization for every single particle.
         
         Parameters

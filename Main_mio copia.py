@@ -5,6 +5,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import crank_nicolson_numba.generic as cn
 import scipy.integrate as integrate
+np.random.seed(4)
 
 
     
@@ -39,7 +40,6 @@ def D_calculatore(I, delta=0.00000001):
         sampling point
     epsilon : float
         noise coefficient
-    
     
     Returns
     -------
@@ -79,7 +79,7 @@ omega_1x= -1.73e5 * 2*np.pi * 2*emittance_star/(beta_rel*gamma)
 omega_2x= -1.87e12 * 2*np.pi * (2*emittance_star/(beta_rel*gamma))**2
 print(omega_0x, omega_1x, omega_2x)
 iterations=10**5 
-n_particle=10**9
+n_particle=10**8
 mean_x=0.0
 sigma_x=1.0
 mean_p=0.0
@@ -92,9 +92,9 @@ Min_I=r_1**2 * 0.5
 #creating initial distributions
 #u=np.random.normal(1.0, 0.2, n_particle)
 #th0=np.random.uniform(0.0, np.pi*2, n_particle)
-np.random.seed(4)
+
 x0=np.random.normal(mean_x, sigma_x, n_particle)
-np.random.seed(5)
+
 p0=np.random.normal(mean_p, sigma_p, n_particle)
 I0=(x0**2 + p0**2)*0.5
 p0=(p0)[I0>Min_I]
@@ -155,7 +155,7 @@ for i in range(len(azione)):
 
 
 #initializing CN
-dt=0.4
+dt=0.45
 tempo_giro=0.0000909
 motore=cn.cn_generic(Min_I, Max_I, ro, dt, D_calculatore)
 times, current = motore.current(int(iterations/scala), 1)
@@ -165,9 +165,10 @@ a, stat=motore.get_data_with_x()
 
 
 #initializing discteete map
-mappa = sm.generate_instance(omega_0x, omega_1x, omega_2x, epsilon, r_1, r_2, th_MAX, radius, x0, p0)
+mappa = sm.genera_istanza(omega_0x, omega_1x, omega_2x, epsilon, r_1, r_2, th_MAX, radius, x0, p0)
 #print(make_correlated_noise(iterations))
-mappa.compute_comon_noise(make_correlated_noise(iterations))
+#mappa.compute_comon_noise(make_correlated_noise(iterations))
+mappa.compute_personale_noise(iterations)
 y=mappa.get_filtered_action()
 x, p, t = mappa.get_filtered_data()
 print(len(x0))
@@ -216,7 +217,8 @@ b=np.array([Io, Io, Io, Io])
 stati=np.array([0.0, 0.3, 0.7, 1.0])
 ax.set_xlabel("I")
 ax.set_ylabel("\u03C1")
-ax.hist(y, 80, None, True)
+ax.set_yscale('log')
+ax.hist(y, 50, None, True)
 ax.plot(a, stat)
 #ax.plot(azione, ro)
 #ax.plot(b, stati)
