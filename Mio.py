@@ -31,8 +31,9 @@ def make_correlated_noise(n_elements, gamma=0.0):
     ndarray
         the noise array
     """    
-    #np.random.seed(1)
-    noise = np.random.normal(0.0, 1.0, n_elements)
+    np.random.seed(1)
+    #noise = np.random.normal(0.0, 1.0, n_elements)
+    noise = np.random.binomial(1, 0.5, n_elements)
     if gamma != 0.0:
         for i in range(1, n_elements):
             noise[i] += gamma * noise[i - 1]
@@ -93,7 +94,7 @@ def iterate(x, px, noise, epsilon, omega_0, omega_1, omega_2, R_1, R_2, TH_MAX, 
             return 0.0, 0.0, i + start 
         
         temp1 = x
-        temp2 = (px + (epsilon * noise[i] * TH_MAX * f(x, R_1, R_2) * R_2 * 914038.5712158077/ x ))
+        temp2 = (px + (epsilon * noise[i] * TH_MAX * f(x, R_1, R_2) * R_2 * 914099.8357243269/ x ))
         x = np.cos(rot_angle) * temp1 + np.sin(rot_angle) * temp2
         px = -np.sin(rot_angle) * temp1 + np.cos(rot_angle) * temp2
         
