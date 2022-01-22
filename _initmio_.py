@@ -7,6 +7,8 @@ import numba.cuda.random as random
 import Mio as mio
 import Mio_gpu as gpu
 
+
+
 def f(x, R_1, R_2):
     return mio.f(x, R_1, R_2)
 
@@ -22,10 +24,10 @@ class symplectic_map(object):
     def reset(self):
         pass
 
-    def compute_comon_noise(self):
+    def common_noise(self):
         pass
     
-    def compute_personale_noise(self):
+    def personal_noise(self):
         pass
     
     def get_data(self):
@@ -47,7 +49,34 @@ class symplectic_map(object):
             tuple with x, p, and number of iterations before loss data
         """
         t = self.times
-        return (self.x)[t == self.iterations-1], (self.p)[t == self.iterations-1], t[t == self.iterations-1]
+        return (self.x)[t >= self.iterations], (self.p)[t >= self.iterations], t[t >= self.iterations]
+   
+    def get_th(self):
+        """Find theta given x and p.
+        
+        Returns
+        -------
+        ndarray
+            angle array data
+        """
+        x, p, t = self.get_filtered_data()
+        th=[]
+        for i in range(len(x)):
+            th_1=np.arcsin(x[i]/np.sqrt((x[i] * x[i])+(p[i] * p[i])))
+            th_2=np.arccos(p[i]/np.sqrt((x[i] * x[i])+(p[i] * p[i])))
+            if np.sin(th_1) > 0 and np.cos(th_2) > 0 :
+                th.append(th_1)
+            if np.sin(th_1) > 0 and np.cos(th_2) < 0 :
+                th.append(th_2)
+            if np.sin(th_1) < 0 and np.cos(th_2) > 0 :
+                th_4=(th_1 + (np.pi*2))
+                th.append(th_4)
+            if np.sin(th_1) < 0 and np.cos(th_2) < 0 :
+             th_3=(np.pi - th_1)
+             th.append(th_3)
+            
+        Th=np.array(th)
+        return Th
 
     def get_action(self):
         """Get action data from engine
@@ -103,7 +132,7 @@ class symplectic_map(object):
         max_t = int(np.amax(t))
         quota = np.empty(max_t)
         for i in range(max_t):
-            quota[i] = np.count_nonzero(t > i)
+            quota[i] = np.count_nonzero(t>i)
         return quota
 
     def get_lost_particles(self):
@@ -142,7 +171,7 @@ class symplectic_map(object):
         return np.array(t_middle), np.array(currents)
 
     @staticmethod
-    def genera_istanza(omega_0, omega_1, omega_2, epsilon, R_1, R_2, TH_MAX, barrier_radius, x_0, p_0, cuda_device=None):
+    def generate_instance(omega_0, omega_1, omega_2, epsilon, R_1, R_2, TH_MAX, barrier_radius, x_0, p_0, cuda_device=None):
         if cuda_device == None:
             cuda_device = cuda.is_available()
         if cuda_device:
@@ -202,7 +231,7 @@ class symplectic_map_cpu(symplectic_map):
         self.p = self.p_0.copy()
         self.times = np.zeros(len(self.x))
 
-    def compute_comon_noise(self, noise_array):
+    def common_noise(self, noise_array):
         """Execute iterations with given noise array, common for all particles.
         
         Parameters
@@ -215,7 +244,7 @@ class symplectic_map_cpu(symplectic_map):
             self.x, self.p, self.times, noise_array, self.epsilon, self.omega_0, self.omega_1, self.omega_2, self.R_1, self.R_2, self.TH_MAX, self.barrier_radius
         )
 
-    def compute_personale_noise(self, n_iterations, gamma=0.0):
+    def personal_noise(self, n_iterations, gamma=0.0):
         """Execute iterations with correlated noise with different realization for every single particle.
         
         Parameters
@@ -317,7 +346,7 @@ class symplectic_map_gpu(symplectic_map):
         self.d_p.copy_to_host(self.p)
         self.d_times.copy_to_host(self.times)
 
-    def compute_personale_noise(self, n_iterations, gamma=0.0):
+    def personal_noise(self, n_iterations, gamma=0.0):
         """Execute iterations with correlated noise with different realization for every single particle.
         
         Parameters

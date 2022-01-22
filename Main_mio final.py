@@ -5,11 +5,12 @@ import numpy as np
 import matplotlib.pyplot as plt
 import  crank_nicolson_numba.generic as cn
 import scipy.integrate as integrate
+from numba import jit, njit, prange
 np.random.seed(4)
 
 
     
-
+@njit
 def get_th(x, p):
     """Find theta given x and p"""
     th=[]
@@ -63,14 +64,12 @@ def D_calculatore(I, delta=0.0001):
 
 
 #setting parameters
-#scala=100
-#epsilon = 1.0
 epsilon_cn=0.01
 #r_1=3.59
 #r_2=7.18
 #radius=6.3245
 radius=6.7
-th_MAX=  0.3e-6
+#th_MAX=  0.3e-6
 emittance_star=2.5e-6
 beta=280
 gamma=(7000/0.938272088)
@@ -78,9 +77,9 @@ beta_rel=np.sqrt(1-(1/(gamma**2)))
 emittance=emittance_star/(gamma*beta_rel)
 #r_1=1.1e-3/np.sqrt(emittance*beta)
 r_1=5
-r_2=2.2e-3/np.sqrt(emittance*beta)
-#r_2=2*r_1
-
+#r_2=2.2e-3/np.sqrt(emittance*beta)
+r_2=2*r_1
+th_MAX=0.3e-6 * 0.0022 / (np.sqrt(beta*emittance)*r_2)
 #print(np.sqrt(beta/emittance))
 #th_MAX=0.3*10**-6 * 0.0022 / (np.sqrt(beta*emittance)*r_2)
 omega_0x=0.31 * 2 * np.pi
@@ -91,7 +90,7 @@ omega_1x= -1.73e5 * 2*np.pi * 2*emittance_star/(beta_rel*gamma)
 omega_2x= -1.87e12 * 2*np.pi * (2*emittance_star/(beta_rel*gamma))**2
 #print(omega_0x, omega_1x, omega_2x)
 iterations=int(11e5)
-n_particle=10**6
+n_particle=10**5
 n=4
 mean_x=0.0
 sigma_x=1.0
@@ -194,9 +193,9 @@ a, stat=motore.get_data_with_x()
 
 
 #initializing discteete map
-mappa = sm.genera_istanza(omega_0x, omega_1x, omega_2x, 1.0, r_1, r_2, th_MAX, radius, x0, p0)
+mappa = sm.generate_instance(omega_0x, omega_1x, omega_2x, 1.0, r_1, r_2, th_MAX, radius, x0, p0)
 #print(make_correlated_noise(iterations))
-mappa.compute_comon_noise(make_correlated_noise(iterations))
+mappa.common_noise(make_correlated_noise(iterations))
 #mappa.compute_personale_noise(iterations)
 y=mappa.get_filtered_action()
 x, p, t = mappa.get_filtered_data()
@@ -256,7 +255,7 @@ b=np.array([Io, Io, Io, Io])
 stati=np.array([0.0, 0.3, 0.7, 1.0])
 ax.set_xlabel("I")
 ax.set_ylabel("\u03C1")
-ax.set_yscale('log')
+#ax.set_yscale('log')
 ax.hist(y, 30, None, True)
 ax.plot(a, stat)
 #ax.plot(azione, ro)
@@ -269,10 +268,10 @@ bx.hist(x, 80, None, True, None, False, None, 'step')
 
 
 #phase space
-xf=(x)[(x**2 + p**2)*0.5 > 7.0]
-pf=(p)[(x**2 + p**2)*0.5 > 7.0]
+#xf=(x)[(x**2 + p**2)*0.5 > 7.0]
+#pf=(p)[(x**2 + p**2)*0.5 > 7.0]
 sx.set_xlabel("x")
 sx.set_ylabel("P")
-sx.plot(xf, pf, "r.", markersize=1)
+sx.plot(x, p, "r.", markersize=1)
 
 plt.show()
